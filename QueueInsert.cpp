@@ -22,30 +22,31 @@ void FineGrainedQueue::insertIntoMiddle(int value, int pos)
     new_node->next = nullptr;
     new_node->node_mutex = std::make_unique<std::mutex>();
 
-    {
-        std::lock_guard<std::mutex> queue_lock(queue_mutex);
+    std::unique_lock<std::mutex> queue_lock(queue_mutex);
 
-        Node* current = head;
-        Node* previous = nullptr;
-        int current_pos = 0;
+    Node* current = head;
+    Node* previous = nullptr;
+    int current_pos = 0;
 
-        while (current_pos < pos - 1 && current != nullptr) {
-            previous = current;
-            current = current->next;
-            current_pos++;
-        }
+    while (current_pos < pos && current != nullptr) {
+        previous = current;
+        current = current->next;
+        current_pos++;
+    }
 
-        if (previous != nullptr) {
-            std::unique_lock<std::mutex> current_lock(*(previous->node_mutex));
-            std::unique_lock<std::mutex> next_lock(*(new_node->node_mutex));
-
-            new_node->next = previous->next;
+    if (previous != nullptr) {
+        std::unique_lock<std::mutex> current_lock(*(previous->node_mutex));
+        if (current) {
+            std::unique_lock<std::mutex> next_lock(*(current->node_mutex));
+            new_node->next = current;
             previous->next = new_node;
         }
         else {
-            std::unique_lock<std::mutex> next_lock(*(new_node->node_mutex));
-            new_node->next = head;
-            head = new_node;
+            previous->next = new_node;
         }
+    }
+    else {
+        new_node->next = head;
+        head = new_node;
     }
 }
