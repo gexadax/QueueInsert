@@ -27,10 +27,8 @@ void FineGrainedQueue::insertIntoMiddle(int value, int pos)
     new_node->next = nullptr;
     new_node->node_mutex = new std::mutex;
 
-    
     std::unique_lock<std::mutex> queue_lock(*queue_mutex);
-
-    
+        
     Node* current = head;
     Node* previous = nullptr;
     int current_pos = 0;
@@ -44,16 +42,12 @@ void FineGrainedQueue::insertIntoMiddle(int value, int pos)
     if (current != nullptr) {
         
         std::unique_lock<std::mutex> current_lock(*current->node_mutex);
-
-        
         std::mutex* next_mutex = (current->next != nullptr) ? current->next->node_mutex : new std::mutex;
         std::unique_lock<std::mutex> next_lock(*next_mutex);
-
-        
+                
         new_node->next = current->next;
         current->next = new_node;
-
-        
+                
         current_lock.unlock();
         next_lock.unlock();
     }
