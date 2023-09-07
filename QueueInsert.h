@@ -1,12 +1,13 @@
 #pragma once
 
 #include <mutex>
+#include <vector>
 
 struct Node
 {
     int value;
     Node* next;
-    std::mutex* node_mutex;
+    std::unique_ptr<std::mutex> node_mutex;
 };
 
 class FineGrainedQueue
@@ -23,5 +24,5 @@ public:
 
 private:
     Node* head;
-    std::mutex* queue_mutex;
+    std::mutex queue_mutex;
 };
