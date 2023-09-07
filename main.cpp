@@ -23,6 +23,10 @@ int main()
             queue.insertIntoMiddle(100 * (i + 1), 5 + i);
             });
     }
+    //A thread that adds an element to the end of a list
+    threads.emplace_back([&queue]() {
+        queue.insertIntoMiddle(1000, 22);
+        });
 
     // Join all the threads to wait for them to complete.
     for (auto& thread : threads) {
